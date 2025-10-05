@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini E-Learning Platform</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #2d6cdf;
+      color: #fff;
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    .course-list, .course-detail {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .course-card {
+      background: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    .course-card h3 {
+      margin: 0 0 0.3rem;
+      color: #2d6cdf;
+    }
+
+    .back-btn, .complete-btn {
+      background: #2d6cdf;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 1rem;
+    }
+
+    .back-btn:hover, .complete-btn:hover {
+      background: #1f4fb5;
+    }
+
+    .lesson {
+      background: #eef3ff;
+      padding: 0.8rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress {
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 15px;
+      margin: 1rem 0;
+    }
+
+    .progress-bar {
+      height: 15px;
+      background: #2d6cdf;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    footer {
+      text-align: center;
+      color: #888;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Mini E-Learning Platform</header>
+  <div class="container" id="app">
+    <!-- Dynamic content goes here -->
+  </div>
+
+  <footer>© 2025 E-Learn Prototype</footer>
+
+  <script>
+    const app = document.getElementById("app");
+
+    // Default course data
+    const defaultCourses = [
+      {
+        id: 1,
+        title: "HTML Basics",
+        description: "Learn the structure of web pages using HTML.",
+        lessons: ["Introduction to HTML", "Tags and Elements", "Building a Simple Page"],
+        completed: false,
+      },
+      {
+        id: 2,
+        title: "CSS Fundamentals",
+        description: "Style your web pages with CSS for modern layouts.",
+        lessons: ["Selectors and Properties", "Flexbox & Grid", "Responsive Design"],
+        completed: false,
+      },
+      {
+        id: 3,
+        title: "JavaScript Essentials",
+        description: "Add interactivity to your website using JavaScript.",
+        lessons: ["Variables and Functions", "DOM Manipulation", "Events and Loops"],
+        completed: false,
+      },
+    ];
+
+    // --- localStorage Utility Functions ---
+    function loadCourses() {
+      const saved = localStorage.getItem("coursesData");
+      return saved ? JSON.parse(saved) : defaultCourses;
+    }
+
+    function saveCourses() {
+      localStorage.setItem("coursesData", JSON.stringify(courses));
+    }
+
+    // Initialize courses from localStorage
+    let courses = loadCourses();
+
+    function renderHome() {
+      app.innerHTML = `
+        <h2>Available Courses</h2>
+        <div class="course-list">
+          ${courses
+            .map(
+              (course) => `
+            <div class="course-card" onclick="viewCourse(${course.id})">
+              <h3>${course.title}</h3>
+              <p>${course.description}</p>
+              <p><strong>Status:</strong> ${
+                course.completed ? "✅ Completed" : "In Progress"
+              }</p>
+            </div>`
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    function viewCourse(id) {
+      const course = courses.find((c) => c.id === id);
+      const completedLessons = course.completed ? course.lessons.length : 0;
+      const progress = (completedLessons / course.lessons.length) * 100;
+
+      app.innerHTML = `
+        <button class="back-btn" onclick="renderHome()">← Back to Courses</button>
+        <h2>${course.title}</h2>
+        <p>${course.description}</p>
+        <div class="progress"><div class="progress-bar" style="width: ${progress}%"></div></div>
+        <h3>Lessons</h3>
+        <div class="course-detail">
+          ${course.lessons.map((lesson) => `<div class="lesson">${lesson}</div>`).join("")}
+        </div>
+        <button class="complete-btn" onclick="markComplete(${id})">
+          ${course.completed ? "Completed ✔" : "Mark as Completed"}
+        </button>
+      `;
+    }
+
+    function markComplete(id) {
+      const course = courses.find((c) => c.id === id);
+      course.completed = true;
+      saveCourses(); // persist progress
+      alert(`${course.title} marked as completed!`);
+      renderHome();
+    }
+
+    // Initialize app
+    renderHome();
+  </script>
+</body>
+</html>
